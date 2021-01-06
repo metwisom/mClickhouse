@@ -1,0 +1,19 @@
+{
+  "name": "mclickhouse",
+  "version": "0.0.1",
+  "description": "Implementing a Clickhouse client over HTTP",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/metwisom/mClickhouse.git"
+  },
+  "author": "Ruslan Timershin <metwisom@gmail.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/metwisom/mClickhouse/issues"
+  },
+  "homepage": "https://github.com/metwisom/mClickhouse#readme"
+}
