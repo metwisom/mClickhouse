@@ -3,6 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.mClickhouse = void 0;
 const http_1 = __importDefault(require("http"));
 const QueryResponse_1 = __importDefault(require("./QueryResponse"));
 const QueryResult_1 = __importDefault(require("./QueryResult"));
@@ -13,6 +14,26 @@ class mClickhouse {
             port: 8123,
             method: 'POST',
         };
+    }
+    ping() {
+        const options = {
+            hostname: this.settings.hostname,
+            port: this.settings.port,
+            path: encodeURI('/ping'),
+            method: 'GET',
+        };
+        return new Promise((resolve, reject) => {
+            http_1.default
+                .get(options, (res) => {
+                let data = '';
+                res
+                    .on('data', (chunk) => data += chunk)
+                    .on('end', () => resolve(data === 'Ok.\n'));
+            })
+                .on('error', (e) => {
+                reject(`problem with request: ${e.message}`);
+            });
+        });
     }
     sendQuery(query, body = '') {
         const options = {
@@ -26,7 +47,7 @@ class mClickhouse {
         const isInsert = !!query
             .toLowerCase()
             .trim()
-            .match(/insert/);
+            .match(/^insert/);
         return new Promise((resolve, reject) => {
             const req = http_1.default.request(options, (res) => {
                 const response = new QueryResponse_1.default();
@@ -42,6 +63,7 @@ class mClickhouse {
                     incomeBody += chunk;
                     const new_data = incomeBody.split('\n');
                     incomeBody = new_data.splice(-1, 1).toString();
+                    incomeData.count += new_data.length;
                     incomeData.add(...new_data.map((data) => data.split('\t')));
                 });
                 res.on('end', () => {
@@ -76,19 +98,8 @@ class mClickhouse {
         }
         return this.sendQuery('INSERT INTO ' + table + ' FORMAT TabSeparated', rows);
     }
-    select(query) {
+    query(query) {
         return this.sendQuery(query);
     }
 }
-const ch = new mClickhouse();
-const inport = [];
-(async () => {
-    for (let i = 0; i < 2000000; i++)
-        inport.push(['4', 9848, '2020-01-02 14:28:56']);
-    const a = await ch.insert('some_table', inport);
-    console.log(a);
-})();
-(async () => {
-    const a = await ch.select('SELECT count(*) FROM some_table WHERE data = \'4\'');
-    console.log(a);
-})();
+exports.mClickhouse = mClickhouse;
