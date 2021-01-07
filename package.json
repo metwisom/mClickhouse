@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/metwisom/mClickhouse/issues"
   },
-  "homepage": "https://github.com/metwisom/mClickhouse#readme"
+  "homepage": "https://github.com/metwisom/mClickhouse#readme",
+  "devDependencies": {
+    "@types/node": "^14.14.20"
+  }
 }
