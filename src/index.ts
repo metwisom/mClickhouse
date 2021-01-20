@@ -7,43 +7,34 @@ export class mClickhouse {
   settings = {
     hostname: 'localhost',
     port: 8123,
-    method: 'POST',
   };
 
-  ping() {
-    const options = {
-      hostname: this.settings.hostname,
-      port: this.settings.port,
-      path: encodeURI('/ping'),
-      method: 'GET',
+  buildOption(path: string, method: string = "GET") {
+    return {
+      ...this.settings,
+      path: encodeURI(path),
+      method: method,
     };
-    return new Promise((resolve, reject) => {
-      http
-        .get(options, (res) => {
-          let data = '';
-          res
-            .on('data', (chunk) => data += chunk)
-            .on('end', () => resolve(data === 'Ok.\n'));
-        })
-        .on('error', (e) => {
-          reject(`problem with request: ${e.message}`);
-        });
-    })
-
   }
 
-  sendQuery(query: string, body = '') {
-    const options = {
-      hostname: this.settings.hostname,
-      port: this.settings.port,
-      path: encodeURI('/?query=' + query),
-      method: 'POST',
-    };
+  ping() {
+    const options = this.buildOption('/ping');
+
+    return new Promise((resolve, reject) => {
+      http
+        .get(options)
+        .on('response', response => resolve(response.statusCode == 200))
+        .on('error', error => reject(`problem with request: ${error.message}`));
+    })
+  }
+
+  query(body: string, payload = '') {
+    const options = this.buildOption('/?query=' + body, 'POST');
 
     const incomeData = new QueryResult();
 
     let incomeBody = '';
-    const isInsert = !!query
+    const isInsert = !!body
       .toLowerCase()
       .trim()
       .match(/^insert/);
@@ -58,10 +49,7 @@ export class mClickhouse {
         const requestStart = process.hrtime();
         res.setEncoding('utf8');
         res.on('data', (chunk) => {
-          if (isInsert) {
-            incomeBody += chunk;
-            return;
-          }
+
           incomeBody += chunk;
           const new_data = incomeBody.split('\n');
           incomeBody = new_data.splice(-1, 1).toString();
@@ -85,28 +73,26 @@ export class mClickhouse {
       req.on('error', (e) => {
         reject(`problem with request: ${e.message}`);
       });
-      req.write(body);
+      req.write(payload);
       req.end();
     });
   }
 
   insert(table: string, data: unknown) {
-    let rows = '';
-    if (Array.isArray(data) && Array.isArray(data[0])) {
-      const cols = data.map((row) => row.join('\t'));
-      rows = cols.join('\n');
-    } else if (Array.isArray(data) && !Array.isArray(data[0])) {
-      rows = data.join('\t');
-    } else {
-      throw 'expected Array';
-    }
-    return this.sendQuery(
-      'INSERT INTO ' + table + ' FORMAT TabSeparated',
-      rows
-    );
-  }
+    return new Promise((resolve, reject) => {
+      let rows = '';
+      if (Array.isArray(data) && Array.isArray(data[0])) {
+        rows = data.map((row) => row.join('\t')).join('\n')
+      } else if (Array.isArray(data) && !Array.isArray(data[0])) {
+        rows = data.join('\t');
+      } else {
+        reject(new TypeError('array expected'));
+      }
+      resolve(this.query(
+        'INSERT INTO ' + table + ' FORMAT TabSeparated',
+        rows
+      ))
+    })
 
-  query(query: string) {
-    return this.sendQuery(query);
   }
 }
