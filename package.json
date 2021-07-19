@@ -1,6 +1,6 @@
 {
   "name": "@metwisom/mclickhouse",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Implementing a Clickhouse client over HTTP",
   "main": "dist/index.js",
   "directories": {
@@ -8,11 +8,13 @@
   },
   "devDependencies": {
     "@types/node": "^14.14.20",
+    "eslint": "^7.18.0",
     "jest": "^26.6.3"
   },
   "scripts": {
     "test": "jest --coverage=true --silent test/",
-    "testf": "jest --coverage=true test/"
+    "testf": "jest --coverage=true test/",
+    "build": "tsc -w"
   },
   "repository": {
     "type": "git",
