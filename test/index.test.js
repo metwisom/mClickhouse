@@ -1,14 +1,8 @@
 const { mClickhouse } = require("../dist/index");
-const getRandomInt = (max) => Math.floor(Math.random() * Math.floor(max));
-const testTable = String.fromCharCode(
-  ...Array(10)
-    .fill(0)
-    .map((e) => getRandomInt(26) + 97)
-);
 
-const inport = [];
-for (let i = 0; i < 10; i++)
-  inport.push([getRandomInt(1000), getRandomInt(1000), "2020-01-02 14:28:56"]);
+const getRandomInt = (max) => Math.floor(Math.random() * max);
+const testTable = String.fromCharCode(...Array(10).fill().map(() => getRandomInt(26) + 97));
+const preparedData = Array(10).fill().map(() => [getRandomInt(1000), getRandomInt(1000), "2020-01-02 14:28:56"]);
 
 const ch = new mClickhouse();
 
@@ -37,7 +31,7 @@ test("create", async () => {
 
 test("insert_mono", async () => {
   expect.assertions(1);
-  await expect(ch.insert(testTable, inport[0])).resolves.toHaveProperty(
+  await expect(ch.insert(testTable, preparedData[0])).resolves.toHaveProperty(
     "status",
     200
   );
@@ -45,7 +39,7 @@ test("insert_mono", async () => {
 
 test("insert_multi", async () => {
   expect.assertions(1);
-  await expect(ch.insert(testTable, inport)).resolves.toHaveProperty("status", 200);
+  await expect(ch.insert(testTable, preparedData)).resolves.toHaveProperty("status", 200);
 });
 
 test("insert_error(not_array)", async () => {
