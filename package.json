@@ -20,7 +20,14 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/metwisom/mClickhouse.git"
-  },
+  },  
+  "keywords": [
+    "clickhouse",
+    "database",
+    "db",
+    "sql",
+    "typescript"
+  ],
   "author": "Ruslan Timershin <metwisom@gmail.com>",
   "license": "ISC",
   "bugs": {
