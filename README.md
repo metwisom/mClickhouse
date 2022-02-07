@@ -2,18 +2,20 @@
 NodeJS client for [ClickHouse](https://clickhouse.yandex/).
 Send query over HTTP interface.
 
+***
 Install:
 
 ```bash
 npm i @metwisom/mclickhouse
 ```
+***
 
 Example:
 
 ```javascript
-const { mClickhouse } = require('@metwisom/mclickhouse')
+const { mClickhouse } = require('@metwisom/mclickhouse');
 
-const clickhouse = new mClickhouse()
+const clickhouse = new mClickhouse();
 ```
 
 
@@ -21,8 +23,8 @@ const clickhouse = new mClickhouse()
  
 Exec query:
 ```javascript
-await ch.query(`DROP TABLE IF EXISTS default.test`);
-await ch.query(
+await clickhouse.query(`DROP TABLE IF EXISTS default.test`);
+await clickhouse.query(
     `CREATE TABLE default.test (
         data String, 
         some_index UInt32, 
@@ -38,12 +40,12 @@ const preparedData = Array(10).fill().map(
 );
 
 // mono insert
-await ch.insert('default.test', preparedData[0])
+await clickhouse.insert('default.test', preparedData[0]);
 
 // multi insert
-await ch.insert('default.test', preparedData)
+await clickhouse.insert('default.test', preparedData);
 
-const res = await ch.query('SELECT * FROM default.test LIMIT 10');
+const res = await clickhouse.query('SELECT * FROM default.test LIMIT 10');
 ````
 
 ***
@@ -52,6 +54,7 @@ const res = await ch.query('SELECT * FROM default.test LIMIT 10');
 
 ```
 npm install
+
 npm run test
 # or verbose mode
 npm run testf
